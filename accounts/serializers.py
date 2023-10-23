@@ -2,14 +2,7 @@
 
 from rest_framework import serializers
 from .models import CustomUser
-from rest_framework.serializers import ModelSerializer, SerializerMethodField
 from .models import BlogPost
-from rest_framework.serializers import ModelSerializer, SerializerMethodField
-# from api.users.serializers import UserSerializer
-import json
-import contextlib
-
-
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -26,6 +19,14 @@ class UserSerializer(serializers.ModelSerializer):
         user.save()
         return user
     
+    def update(self, instance, validated_data):
+        # Update an existing blog post
+        instance.image = validated_data.get('image', instance.image)
+        instance.title = validated_data.get('title', instance.title)
+        instance.description = validated_data.get('description', instance.description)
+        instance.save()
+        return instance
+    
 # accounts/serializers.py
 
 class ChangePasswordSerializer(serializers.Serializer):
@@ -34,34 +35,20 @@ class ChangePasswordSerializer(serializers.Serializer):
 
 class ResetPasswordEmailSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
-    
-    
-class BlogPostUserSerializer(ModelSerializer):
-    author = UserSerializer(read_only=True)
-    
-    class Meta:
-        model = BlogPost
-        fields = [
-            'id', 'title', 'sub_title', 'body', 'date_created', 'date_modified',
-           'slug', 'author'
-            ]
-        
+
+
+
+# the blogpost staff
 class BlogPostSerializer(serializers.ModelSerializer):
-    # author = UserSerializer(read_only=True)
-
-    # def create(self, validated_data):
-    #     request = self.context['request']
-    #     author_id = request.data.get('author')
-    #     validated_data['author_id'] = author_id
-    #     return super().create(validated_data)
-
-    # def update(self, instance, validated_data):
-    #     request = self.context['request']
-    #     author_id = request.data.get('author')
-    #     validated_data['author_id'] = author_id
-    #     return super().update(instance, validated_data)
-
     class Meta:
         model = BlogPost
-        # fields = '__all__'
-        fields = ('title', 'body')
+        fields = ['id', 'image', 'title', 'description', 'user']
+        read_only_fields = ['id', 'user']
+
+from rest_framework import serializers
+from .models import Record
+
+class RecordSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Record
+        fields = ['id', 'name', 'description']
