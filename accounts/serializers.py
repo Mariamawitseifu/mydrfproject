@@ -48,7 +48,10 @@ class BlogPostSerializer(serializers.ModelSerializer):
 from rest_framework import serializers
 from .models import Record
 
+from rest_framework import serializers
+
+
 class RecordSerializer(serializers.ModelSerializer):
     class Meta:
         model = Record
-        fields = ['id', 'name', 'description']
+        fields = ['id', 'name', 'internal_links', 'external_links']

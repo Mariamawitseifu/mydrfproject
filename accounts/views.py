@@ -192,16 +192,90 @@ def record_detail(request, pk):
         record.delete()
         return JsonResponse({'message': 'Record deleted successfully'}, status=204)
     
-from django.http import JsonResponse
+# from django.http import JsonResponse
+
+# @csrf_exempt
+# def record_create(request):
+#     if request.method == 'POST':
+#         # data = JSONParser().parse(request) 
+#         serializer = RecordSerializer(request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=201)
+#         return Response(serializer.errors, status=400)
+#     else:
+#         return Response({'error': 'Invalid request method'}, status=405)
+
+
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework.status import (
+    HTTP_201_CREATED,
+    HTTP_400_BAD_REQUEST,
+    HTTP_405_METHOD_NOT_ALLOWED
+)
 
 @csrf_exempt
+@api_view(['POST'])
 def record_create(request):
     if request.method == 'POST':
-        data = JSONParser().parse(request)
+        data = request.data
         serializer = RecordSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            return JsonResponse(serializer.data, status=201)
-        return JsonResponse(serializer.errors, status=400)
+            return Response(serializer.data, status=HTTP_201_CREATED)
+        return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
     else:
-        return JsonResponse({'error': 'Invalid request method'}, status=405)
+        return Response({'error': 'Invalid request method'}, status=HTTP_405_METHOD_NOT_ALLOWED)
+    
+@api_view(['GET', 'DELETE'])
+def delete_record(request, pk):
+    if request.method == 'GET':
+        try:
+            records = Record.objects.all()
+            serializer = RecordSerializer(records, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Record.DoesNotExist:
+            return Response({'error': 'No records found'}, status=status.HTTP_404_NOT_FOUND)
+
+    elif request.method == 'DELETE':
+        try:
+            record = Record.objects.get(pk=pk)
+        except Record.DoesNotExist:
+            return Response({'error': 'Record not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        record.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+
+@api_view(['PUT'])
+def update_record(request, pk):
+    try:
+        record = Record.objects.get(pk=pk)
+    except Record.DoesNotExist:
+        return Response({'error': 'Record not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = RecordSerializer(record, data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+from django.http import JsonResponse
+from django.db.models import Q
+from .models import Record
+
+def record_search_api(request):
+    query = request.GET.get('query')  # Assuming search query is passed as a query parameter
+
+    if query:
+        # Perform the search using OR condition on multiple fields
+        results = Record.objects.filter(
+            Q(name__icontains=query) |
+            Q(internal_links__icontains=query) |
+            Q(external_links__icontains=query)
+        ).values()  # Retrieve the filtered results as a list of dictionaries
+    else:
+        results = Record.objects.values()  # Return all records if no search query is provided
+
+    return JsonResponse({'results': list(results)})

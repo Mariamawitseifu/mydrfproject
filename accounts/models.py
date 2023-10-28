@@ -31,12 +31,15 @@ class BlogPost(models.Model):
 
     def __str__(self):
         return self.title
-    from django.db import models
+    
 
 class Record(models.Model):
+    order = models.IntegerField(null=True)
     name = models.CharField(max_length=100)
-    description = models.TextField()
+    internal_links = models.CharField(max_length=255, blank=True, null=True)
+    external_links = models.CharField(max_length=255,  blank=True, null=True)
 
     def __str__(self):
-        return self.name
+        return f"{self.order}: {self.name}"
     
+
