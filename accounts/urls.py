@@ -3,17 +3,17 @@
 from django.urls import path, include
 from .views import register_user, user_login, user_logout
 from .views import change_password
-from .views import create_blog_post
-from .views import create_or_update_blog_post
-from .views import update_blog_post,get_single_picture,a_blog_post_added,record_detail,record_list,record_create,delete_record,update_record,record_search_api
+from django.conf import settings
+from django.conf.urls.static import static 
+from .views import record_detail,record_list,record_create,delete_record,update_record,record_search_api
 
 urlpatterns = [
-    path('a_blog_post_added/', a_blog_post_added, name='get_single_picture'),
-    path('singleblog/<int:pk>/', get_single_picture, name='get_single_picture'),
-    path('blog/<int:pk>/', update_blog_post, name='update_blog_post'),
+    # path('a_blog_post_added/', a_blog_post_added, name='get_single_picture'),
+    # path('singleblog/<int:pk>/', get_single_picture, name='get_single_picture'),
+    # path('blog/<int:pk>/', update_blog_post, name='update_blog_post'),
     # path('blog-posts-getall' , name='') 
     # path('blog/', create_or_update_blog_post, name='create_or_update_blog_post'),
-    path('blog/create/', create_blog_post, name='create_blog_post'),
+    # path('blog/create/', create_blog_post, name='create_blog_post'),
     path('register/', register_user, name='register'),
     path('login/', user_login, name='login'),
     path('logout/', user_logout, name='logout'),

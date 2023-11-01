@@ -2,7 +2,7 @@
 
 from rest_framework import serializers
 from .models import CustomUser
-from .models import BlogPost
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -19,13 +19,13 @@ class UserSerializer(serializers.ModelSerializer):
         user.save()
         return user
     
-    def update(self, instance, validated_data):
-        # Update an existing blog post
-        instance.image = validated_data.get('image', instance.image)
-        instance.title = validated_data.get('title', instance.title)
-        instance.description = validated_data.get('description', instance.description)
-        instance.save()
-        return instance
+    # def update(self, instance, validated_data):
+    #     # Update an existing blog post
+    #     instance.image = validated_data.get('image', instance.image)
+    #     instance.title = validated_data.get('title', instance.title)
+    #     instance.description = validated_data.get('description', instance.description)
+    #     instance.save()
+    #     return instance
     
 # accounts/serializers.py
 
@@ -35,15 +35,6 @@ class ChangePasswordSerializer(serializers.Serializer):
 
 class ResetPasswordEmailSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
-
-
-
-# the blogpost staff
-class BlogPostSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = BlogPost
-        fields = ['id', 'image', 'title', 'description', 'user']
-        read_only_fields = ['id', 'user']
 
 from rest_framework import serializers
 from .models import Record
@@ -55,3 +46,5 @@ class RecordSerializer(serializers.ModelSerializer):
     class Meta:
         model = Record
         fields = ['id', 'name', 'internal_links', 'external_links']
+
+

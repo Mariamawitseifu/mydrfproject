@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
-from .serializers import UserSerializer, BlogPostSerializer, ChangePasswordSerializer
+from .serializers import UserSerializer, ChangePasswordSerializer
 from django.dispatch import receiver
 from django_rest_passwordreset.signals import reset_password_token_created
 from django.urls import reverse
@@ -13,7 +13,6 @@ from django.contrib.auth import update_session_auth_hash, authenticate
 from django.core.exceptions import ObjectDoesNotExist
 from .models import CustomUser
 from rest_framework.decorators import api_view
-from .models import BlogPost
 
 @api_view(['POST'])
 def register_user(request):
@@ -87,69 +86,69 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
         [reset_password_token.user.email]
     )
 
-@api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated])
-def create_blog_post(request):
-    if request.method == 'GET':
-        blog_post = BlogPost.objects.get(id=request.GET.get('id'))
-        serializer = BlogPostSerializer(blog_post)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+# @api_view(['GET', 'POST'])
+# @permission_classes([IsAuthenticated])
+# def create_blog_post(request):
+#     if request.method == 'GET':
+#         blog_post = BlogPost.objects.get(id=request.GET.get('id'))
+#         serializer = BlogPostSerializer(blog_post)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    elif request.method == 'POST':
-        serializer = BlogPostSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(user=request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     elif request.method == 'POST':
+#         serializer = BlogPostSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save(user=request.user)
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['POST', 'PUT', 'PATCH'])
-@permission_classes([IsAuthenticated])
-def create_or_update_blog_post(request):
-    if request.method == 'POST':
-        serializer = BlogPostSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(user=request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# @api_view(['POST', 'PUT', 'PATCH'])
+# @permission_classes([IsAuthenticated])
+# def create_or_update_blog_post(request):
+#     if request.method == 'POST':
+#         serializer = BlogPostSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save(user=request.user)
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    blog_post = get_object_or_404(BlogPost, pk=request.data.get('id'))
-    serializer = BlogPostSerializer(blog_post, data=request.data, partial=True)
+#     blog_post = get_object_or_404(BlogPost, pk=request.data.get('id'))
+#     serializer = BlogPostSerializer(blog_post, data=request.data, partial=True)
 
-    if serializer.is_valid():
-        serializer.save(user=request.user)
-        return Response(serializer.data)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     if serializer.is_valid():
+#         serializer.save(user=request.user)
+#         return Response(serializer.data)
+#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['PUT', 'PATCH'])
-@permission_classes([IsAuthenticated])
-def update_blog_post(request, pk):
-    try:
-        blog_post = BlogPost.objects.get(pk=pk, user=request.user)
-    except BlogPost.DoesNotExist:
-        return Response({'error': 'Blog post not found.'}, status=status.HTTP_404_NOT_FOUND)
+# @api_view(['PUT', 'PATCH'])
+# @permission_classes([IsAuthenticated])
+# def update_blog_post(request, pk):
+#     try:
+#         blog_post = BlogPost.objects.get(pk=pk, user=request.user)
+#     except BlogPost.DoesNotExist:
+#         return Response({'error': 'Blog post not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-    serializer = BlogPostSerializer(blog_post, data=request.data, partial=True)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     serializer = BlogPostSerializer(blog_post, data=request.data, partial=True)
+#     if serializer.is_valid():
+#         serializer.save()
+#         return Response(serializer.data)
+#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_single_picture(request,id):
-    serializer = BlogPost.objects.get(id=request.GET.get('id'))
-    if serializer.is_valid():
-        serializer.save()
-    return Response(serializer.data, status=status.HTTP_200_OK)
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+# def get_single_picture(request,id):
+#     serializer = BlogPost.objects.get(id=request.GET.get('id'))
+#     if serializer.is_valid():
+#         serializer.save()
+#     return Response(serializer.data, status=status.HTTP_200_OK)
    
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def a_blog_post_added(request):
-    serializer = BlogPostSerializer(data=request.data)
-    if serializer.is_valid():
-                serializer.save(user=request.user)
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+# def a_blog_post_added(request):
+#     serializer = BlogPostSerializer(data=request.data)
+#     if serializer.is_valid():
+#                 serializer.save(user=request.user)
+#                 return Response(serializer.data, status=status.HTTP_201_CREATED)
+#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt

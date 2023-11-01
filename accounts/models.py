@@ -21,17 +21,6 @@ class CustomUser(AbstractUser):
         return self.username
 
 
-class BlogPost(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='blog_images')
-    title = models.CharField(max_length=255)
-    description = models.TextField()
-
-    # Add any additional fields or methods as needed
-
-    def __str__(self):
-        return self.title
-    
 
 class Record(models.Model):
     order = models.IntegerField(null=True)
@@ -42,4 +31,6 @@ class Record(models.Model):
     def __str__(self):
         return f"{self.order}: {self.name}"
     
+
+
 

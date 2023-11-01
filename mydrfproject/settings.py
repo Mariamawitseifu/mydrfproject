@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'accounts',
     'django_rest_passwordreset',
     'corsheaders',
+    'blog'
 
 ]
 
@@ -138,6 +139,9 @@ REST_FRAMEWORK = {
     ],
     # Other settings...
 }
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
