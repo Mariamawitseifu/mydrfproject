@@ -8,12 +8,6 @@ from django.conf.urls.static import static
 from .views import record_detail,record_list,record_create,delete_record,update_record,record_search_api
 
 urlpatterns = [
-    # path('a_blog_post_added/', a_blog_post_added, name='get_single_picture'),
-    # path('singleblog/<int:pk>/', get_single_picture, name='get_single_picture'),
-    # path('blog/<int:pk>/', update_blog_post, name='update_blog_post'),
-    # path('blog-posts-getall' , name='') 
-    # path('blog/', create_or_update_blog_post, name='create_or_update_blog_post'),
-    # path('blog/create/', create_blog_post, name='create_blog_post'),
     path('register/', register_user, name='register'),
     path('login/', user_login, name='login'),
     path('logout/', user_logout, name='logout'),

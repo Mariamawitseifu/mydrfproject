@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
-from .serializers import UserSerializer, ChangePasswordSerializer
+from .serializers import CustomUserSerializer, ChangePasswordSerializer
 from django.dispatch import receiver
 from django_rest_passwordreset.signals import reset_password_token_created
 from django.urls import reverse
@@ -14,15 +14,40 @@ from django.core.exceptions import ObjectDoesNotExist
 from .models import CustomUser
 from rest_framework.decorators import api_view
 
+from rest_framework import status
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
 @api_view(['POST'])
 def register_user(request):
-    if request.method == 'POST':
-        serializer = UserSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # Check if the user making the request is admin or superadmin
+    if request.user.role not in ['admin', 'superadmin']:
+        return Response({'error': 'Only admin and superadmin can perform this action.'}, status=status.HTTP_403_FORBIDDEN)
 
+    serializer = CustomUserSerializer(data=request.data)
+    if serializer.is_valid():
+        # Get the role from the request data
+        role = request.data.get('role', '').lower()  # Convert to lowercase
+
+        # Check if the role is valid
+        role_choices = dict(CustomUser.ROLE_CHOICES)
+        if role not in role_choices:
+            return Response({'error': 'Invalid role.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = serializer.save()
+
+        # Assign the role to the user
+        user.role = role
+        user.save()
+
+        token, _ = Token.objects.get_or_create(user=user)
+        response_data = {
+            'user': serializer.data,
+            'token': token.key,
+            'role': user.role
+        }
+        return Response(response_data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 @api_view(['POST'])
 def user_login(request):
     if request.method == 'POST':
@@ -41,7 +66,7 @@ def user_login(request):
 
         if user:
             token, _ = Token.objects.get_or_create(user=user)
-            serializer = UserSerializer(user)
+            serializer = CustomUserSerializer(user)
             response_data = {
                 'user': serializer.data,
                 'token': token.key
@@ -49,6 +74,8 @@ def user_login(request):
             return Response(response_data, status=status.HTTP_200_OK)
 
         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -85,70 +112,6 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
         "danikasparov@somehost.local",
         [reset_password_token.user.email]
     )
-
-# @api_view(['GET', 'POST'])
-# @permission_classes([IsAuthenticated])
-# def create_blog_post(request):
-#     if request.method == 'GET':
-#         blog_post = BlogPost.objects.get(id=request.GET.get('id'))
-#         serializer = BlogPostSerializer(blog_post)
-#         return Response(serializer.data, status=status.HTTP_200_OK)
-
-#     elif request.method == 'POST':
-#         serializer = BlogPostSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save(user=request.user)
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-# @api_view(['POST', 'PUT', 'PATCH'])
-# @permission_classes([IsAuthenticated])
-# def create_or_update_blog_post(request):
-#     if request.method == 'POST':
-#         serializer = BlogPostSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save(user=request.user)
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-#     blog_post = get_object_or_404(BlogPost, pk=request.data.get('id'))
-#     serializer = BlogPostSerializer(blog_post, data=request.data, partial=True)
-
-#     if serializer.is_valid():
-#         serializer.save(user=request.user)
-#         return Response(serializer.data)
-#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-# @api_view(['PUT', 'PATCH'])
-# @permission_classes([IsAuthenticated])
-# def update_blog_post(request, pk):
-#     try:
-#         blog_post = BlogPost.objects.get(pk=pk, user=request.user)
-#     except BlogPost.DoesNotExist:
-#         return Response({'error': 'Blog post not found.'}, status=status.HTTP_404_NOT_FOUND)
-
-#     serializer = BlogPostSerializer(blog_post, data=request.data, partial=True)
-#     if serializer.is_valid():
-#         serializer.save()
-#         return Response(serializer.data)
-#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-# @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
-# def get_single_picture(request,id):
-#     serializer = BlogPost.objects.get(id=request.GET.get('id'))
-#     if serializer.is_valid():
-#         serializer.save()
-#     return Response(serializer.data, status=status.HTTP_200_OK)
-   
-# @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
-# def a_blog_post_added(request):
-#     serializer = BlogPostSerializer(data=request.data)
-#     if serializer.is_valid():
-#                 serializer.save(user=request.user)
-#                 return Response(serializer.data, status=status.HTTP_201_CREATED)
-#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -214,19 +177,27 @@ from rest_framework.status import (
     HTTP_405_METHOD_NOT_ALLOWED
 )
 
-@csrf_exempt
+from rest_framework.permissions import IsAuthenticated
+
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def record_create(request):
+    user = request.user
+
+    if user.role != CustomUser.MANAGER:
+        return Response({'error': 'Only managers can create records.'}, status=status.HTTP_403_FORBIDDEN)
+
     if request.method == 'POST':
         data = request.data
         serializer = RecordSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=HTTP_201_CREATED)
-        return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     else:
-        return Response({'error': 'Invalid request method'}, status=HTTP_405_METHOD_NOT_ALLOWED)
-    
+        return Response({'error': 'Invalid request method'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
 @api_view(['GET', 'DELETE'])
 def delete_record(request, pk):
     if request.method == 'GET':

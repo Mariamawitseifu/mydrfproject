@@ -2,19 +2,21 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 class CustomUser(AbstractUser):
-    ADMIN = 1
-    HR = 2
-    EMPLOYEE = 3
+    admin = 'admin'
+    superadmin = 'superadmin'
+    MANAGER = 'manager'
+    USER = 'user'
 
     ROLE_CHOICES = (
-        (ADMIN, 'Admin'),
-        (HR, 'Hr'),
-        (EMPLOYEE, 'Employee')
+    ('admin', 'Admin'),
+    ('superadmin', 'Superadmin'),
+    (MANAGER, 'Manager'),
+    (USER, 'User'),
     )
     
     name = models.CharField(blank=True, max_length=255)
     email = models.EmailField(unique=True)
-    # role = models.PositiveSmallIntegerField(choices=ROLE_CHOICES, blank=True, null=True, default=3)
+    role = models.CharField(choices=ROLE_CHOICES,max_length=20, blank=True, null=True, default=USER)
     # Add custom fields here, if needed
 
     def __str__(self):
