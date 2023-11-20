@@ -7,7 +7,8 @@
 #     path('admin/', admin.site.urls),
 #     path('api/', include('accounts.urls')),  # Include the app's URLs
 # ]
-
+from django.conf import settings
+from django.conf.urls.static import static
 # mydrfproject/urls.py
 
 from django.contrib import admin
@@ -17,4 +18,4 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('accounts.urls')),  # Include the app's URLs
      path('api1/', include('news.urls')),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
