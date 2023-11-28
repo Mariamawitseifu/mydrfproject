@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'accounts',
     'django_rest_passwordreset',
     'corsheaders',
-    'news'
+    'news',
+    'picture'
 
 ]
 
@@ -70,6 +71,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'news.views.notification_context',
             ],
         },
     },

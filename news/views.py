@@ -1,7 +1,7 @@
 from accounts.models import CustomUser
 from datetime import datetime
 from django.dispatch import Signal
-from news.models import Notification
+# from news.models import Notification
 from news.serializers import NotificationSerializer
 from PIL import Image
 from rest_framework import status
@@ -13,7 +13,8 @@ from .serializers import PostSerializer
 from .models import Post
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.decorators import parser_classes
-
+from .models import Notification
+from rest_framework import viewsets
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -57,19 +58,20 @@ def delete_post(request, id):
     except Post.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
-@api_view(['GET'])
-def notification_list_view(request):
-    user = request.user
-    notifications = Notification.objects.filter(recipient=user).order_by('-created_at')
-    serializer = NotificationSerializer(notifications, many=True)
-    return Response(serializer.data)
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .models import Notification
+from .serializers import NotificationSerializer
 
-@api_view(['PUT'])
-def mark_notification_as_read_view(request, pk):
-    try:
-        notification = Notification.objects.get(pk=pk)
-        notification.read = True
-        notification.save()
-        return Response({'message': 'Notification marked as read.'})
-    except Notification.DoesNotExist:
-        return Response({'error': 'Notification does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+@api_view(['GET', 'POST'])
+def notification_list(request):
+ if request.method == 'GET':
+     notifications = Notification.objects.all()
+     serializer = NotificationSerializer(notifications, many=True)
+     return Response(serializer.data)
+
+ elif request.method == 'POST':
+     serializer = NotificationSerializer(data=request.data)
+     if serializer.is_valid():
+         serializer.save()
+     return Response(serializer.data)

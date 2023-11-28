@@ -1,13 +1,12 @@
+from django.db.models.signals import post_save
 from django.dispatch import receiver
-from models import Notification  # Assuming you have a notifications app and Notification model
-from accounts.models import CustomUser
-from models import new_blog_post_signal
+from news.models import Notification
+from .models import Post
 
-@receiver(new_blog_post_signal)
-def create_notification(sender, post, **kwargs):
-    recipients = CustomUser.objects.all()  # Change this to select specific recipients if needed
-    message = f"A new blog post '{post.title}' has been published."
-
-    for recipient in recipients:
-        notification = Notification(recipient=recipient, message=message, post=post)
-        notification.save()
+@receiver(post_save, sender=Post)
+def create_notification(sender, instance, created, **kwargs):
+   if created:
+       Notification.objects.create(
+           recipient=instance.author,
+           text=f'A new blog post "{instance.title}" has been created.'
+       )

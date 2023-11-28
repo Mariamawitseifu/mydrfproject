@@ -12,8 +12,6 @@ from rest_framework.authtoken.models import Token
 from django.contrib.auth import update_session_auth_hash, authenticate
 from django.core.exceptions import ObjectDoesNotExist
 from .models import CustomUser
-from rest_framework.decorators import api_view
-
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response

@@ -27,14 +27,18 @@ class Post(models.Model):
             return str(self.image)
         else:
             return "No Image"
-          
+        
+from django.db import models
+from django.contrib.auth.models import User
+
 class Notification(models.Model):
-    recipient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    message = models.CharField(max_length=255)
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    published_date = models.DateTimeField(default=timezone.now)
-
-    # ... other fields and methods ...
-
-    def __str__(self):
-        return self.message
+   USER_TYPE = (
+       ('blog', 'Blog'),
+       ('quick_link', 'Quick Link'),
+       ('picture', 'Picture'),
+   )
+   user = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
+   username = models.CharField(max_length=200)
+   type = models.CharField(max_length=20, choices=USER_TYPE)
+   content = models.TextField()
+    

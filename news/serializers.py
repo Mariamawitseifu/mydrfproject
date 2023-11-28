@@ -1,9 +1,8 @@
 from rest_framework import serializers
-from .models import Post
+from .models import Post,Notification
 from accounts.models import CustomUser
 from accounts.serializers import CustomUserSerializer
 from rest_framework import serializers
-from news.models import Notification
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -55,6 +54,11 @@ def save_image_file(image_file):
 
 
 class NotificationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Notification
-        fields = '__all__'
+   class Meta:
+       model = Notification
+       fields = ['id', 'user', 'username', 'type', 'content']
+
+# class NotificationSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Notification
+#         fields = '__all__'

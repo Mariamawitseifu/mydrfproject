@@ -15,3 +15,4 @@ class Post(models.Model):
     )
     image = models.ImageField(upload_to='images/', default='CeO.JPG')
     slug = models.SlugField(unique=True)
+
