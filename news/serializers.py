@@ -62,3 +62,11 @@ class NotificationSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = Notification
 #         fields = '__all__'
+
+from rest_framework import serializers
+from .models import Post
+
+class SearchSerializer(serializers.ModelSerializer):
+   class Meta:
+       model = Post
+       fields = ['title', 'body', 'published_date', 'author', 'image']

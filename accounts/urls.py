@@ -5,7 +5,7 @@ from .views import register_user, user_login, user_logout
 from .views import change_password
 from django.conf import settings
 from django.conf.urls.static import static 
-from .views import record_detail,record_list,record_create,delete_record,update_record,record_search_api
+from .views import record_detail,list_users,record_list,record_create,delete_record,update_record,record_search_api
 
 urlpatterns = [
     path('register/', register_user, name='register'),
@@ -13,6 +13,7 @@ urlpatterns = [
     path('logout/', user_logout, name='logout'),
     path('change_password/', change_password, name='change_password'),
     path('password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
+    path('users/',list_users, name='list-users'),
     path('api/records/', record_list, name='record-list'),
     path('api/records/<int:pk>/', record_detail, name='record-detail'),
     path('api/records/create/', record_create, name='record-create'),

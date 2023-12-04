@@ -4,7 +4,10 @@ from rest_framework import serializers
 from .models import CustomUser
 
 class CustomUserSerializer(serializers.ModelSerializer):
-    role = serializers.CharField(write_only=True)
+    role = serializers.CharField()
+
+    def get_role(self, obj):
+        return obj.get_role_display()
 
     class Meta:
         model = CustomUser

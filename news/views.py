@@ -16,8 +16,17 @@ from rest_framework.decorators import parser_classes
 from .models import Notification
 from rest_framework import viewsets
 
+from rest_framework.permissions import IsAuthenticated, BasePermission
+
+class IsManagerOrSuperAdmin(BasePermission):
+    def has_permission(self, request, view):
+        return (
+            request.user.is_authenticated
+            and (request.user.role == 'manager' or request.user.role == 'superadmin')
+        )
+        
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, IsManagerOrSuperAdmin])
 @parser_classes([MultiPartParser, FormParser])
 def create_post(request):
     # image_file = request.FILES.get('image')
@@ -29,6 +38,19 @@ def create_post(request):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated, IsManager])
+# @parser_classes([MultiPartParser, FormParser])
+# def create_post(request):
+#     # image_file = request.FILES.get('image')
+#     serializer = PostSerializer(data=request.data)
+#     print(request.data)
+#     if serializer.is_valid():
+#         print(request.user)
+#         serializer.save(author=CustomUser.objects.get(username=request.user.username))
+#         return Response(serializer.data, status=status.HTTP_201_CREATED)
+#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 @api_view(['GET'])
 def post_list(request):
     queryset = Post.objects.all()
@@ -36,13 +58,13 @@ def post_list(request):
     return Response(serializer.data)
 
 @api_view(['GET'])
-def post_detail(request, slug):
-    try:
-        post = Post.objects.get(slug=slug)
-        serializer = PostSerializer(post)
-        return Response(serializer.data)
-    except Post.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+def post_detail(request, id):
+   try:
+       post = Post.objects.get(id=id)
+       serializer = PostSerializer(post)
+       return Response(serializer.data)
+   except Post.DoesNotExist:
+       return Response(status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['DELETE'])
 def delete_all_posts(request):
@@ -75,3 +97,40 @@ def notification_list(request):
      if serializer.is_valid():
          serializer.save()
      return Response(serializer.data)
+ 
+import re
+from django.db.models import Q
+from django.http import JsonResponse
+from .models import Post
+
+def post_search_api(request):
+   query = request.GET.get('query') # Assuming search query is passed as a query parameter
+
+   if query:
+       # Perform the search using OR condition on multiple fields
+       results = Post.objects.filter(
+           Q(title__icontains=query) |
+           Q(body__icontains=query) |
+           Q(author__username__icontains=query)
+       )
+   else:
+       results = Post.objects.all() # Return all records if no search query is provided
+
+   # Find the index of the search term in the title and body
+   for result in results:
+    if query:
+       title_index = re.search(query, result.title)
+       body_index = re.search(query, result.body)
+
+       # Slice the title and body around the index
+       if title_index:
+           start = max(0, title_index.start() - 15)
+           end = title_index.end() + 15
+           result.title = ' '.join(result.title.split()[start:end])
+
+       if body_index:
+           start = max(0, body_index.start() - 15)
+           end = body_index.end() + 15
+           result.body = ' '.join(result.body.split()[start:end])
+
+   return JsonResponse({'results': list(results.values())})

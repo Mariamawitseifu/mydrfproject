@@ -14,5 +14,4 @@ class Post(models.Model):
     blank=True
     )
     image = models.ImageField(upload_to='images/', default='CeO.JPG')
-    slug = models.SlugField(unique=True)
-
+    # slug = models.SlugField(unique=True)

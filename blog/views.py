@@ -56,4 +56,3 @@ def delete_post(request, id):
     except Post.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     
-    

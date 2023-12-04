@@ -15,6 +15,7 @@ class Post(models.Model):
     default=None,
     blank=True
 )
+    # slug = models.SlugField(max_length=200, unique=True) # Add this line
 
     
     def __str__(self):
