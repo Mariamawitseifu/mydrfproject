@@ -97,7 +97,82 @@ def notification_list(request):
      if serializer.is_valid():
          serializer.save()
      return Response(serializer.data)
- 
+
+
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.decorators import api_view, renderer_classes
+from rest_framework.response import Response
+from rest_framework.renderers import JSONRenderer
+from rest_framework.status import HTTP_401_UNAUTHORIZED
+from news.models import Post
+from rest_framework.decorators import api_view, renderer_classes
+from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED
+from django.views.decorators.csrf import csrf_exempt
+from .serializers import PostSerializer
+
+@api_view(['POST'])
+@renderer_classes((JSONRenderer,))
+@csrf_exempt
+def create_notification(request):
+    if request.user.is_authenticated:
+        serializer = PostSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(author=request.user)
+            url = serializer.data.get('url')
+            data = {'url': url}
+            return Response(data)
+        else:
+            return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+    else:
+        return Response('User must be authenticated to create a post', status=HTTP_401_UNAUTHORIZED)
+from django.http import response
+
+def mark_notification(request, notification_id):
+
+  if request.method == 'POST':
+
+    try:
+     
+      # get and mark notification as read
+
+      return response.Response('Notification marked as read')
+
+    except Notification.DoesNotExist:  
+
+      return response.Response(
+          'Notification not found',
+          status=404
+      )
+
+  return response.Response(
+      'POST request required',
+      status=400
+  )
+@csrf_exempt
+def delete_all_notifications(request):
+   if request.method == 'POST':
+       Notification.objects.all().delete()
+       return JsonResponse({'message': 'All notifications deleted successfully'}, status=200)
+   else:
+       return JsonResponse({'error': 'POST request required'}, status=400)
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+def delete_notification(request, notification_id):
+   if request.method == 'POST':
+       try:
+           notification = Notification.objects.get(id=notification_id)
+           notification.delete()
+           return JsonResponse({'message': 'Notification deleted successfully'}, status=200)
+       except Notification.DoesNotExist: 
+           return JsonResponse({'error': 'Notification not found'}, status=404)
+   else:
+       return JsonResponse({'error': 'POST request required'}, status=400)
+
 import re
 from django.db.models import Q
 from django.http import JsonResponse
