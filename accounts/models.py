@@ -6,12 +6,14 @@ class CustomUser(AbstractUser):
     superadmin = 'superadmin'
     MANAGER = 'manager'
     USER = 'user'
+    GD = 'graphicsdesigner'
 
     ROLE_CHOICES = (
     ('admin', 'Admin'),
     ('superadmin', 'Superadmin'),
     (MANAGER, 'Manager'),
     (USER, 'User'),
+    (GD,'Graphicsdesigner')
     )
     
     name = models.CharField(blank=True, max_length=255)

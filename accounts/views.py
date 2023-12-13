@@ -19,8 +19,8 @@ from rest_framework.response import Response
 @api_view(['POST'])
 def register_user(request):
     # Check if the user making the request is admin or superadmin
-    if request.user.role not in ['admin', 'superadmin']:
-        return Response({'error': 'Only admin and superadmin can perform this action.'}, status=status.HTTP_403_FORBIDDEN)
+    # if request.user.role not in ['admin', 'superadmin']:
+    #     return Response({'error': 'Only admin and superadmin can perform this action.'}, status=status.HTTP_403_FORBIDDEN)
 
     serializer = CustomUserSerializer(data=request.data)
     if serializer.is_valid():
@@ -110,11 +110,18 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
         "danikasparov@somehost.local",
         [reset_password_token.user.email]
     )
+    
+from rest_framework.permissions import IsAuthenticated, BasePermission
 
-from rest_framework.permissions import IsAdminUser
+class IsAdminOrSuperAdmin(BasePermission):
+    def has_permission(self, request, view):
+        return (
+            request.user.is_authenticated
+            and (request.user.role == 'admin' or request.user.role == 'superadmin')
+        )
 
 @api_view(['GET'])
-@permission_classes([IsAdminUser])
+@permission_classes([IsAuthenticated,IsAdminOrSuperAdmin])
 def list_users(request):
     users = CustomUser.objects.all()
     serializer = CustomUserSerializer(users, many=True)
@@ -255,3 +262,5 @@ def record_search_api(request):
         results = Record.objects.values()  # Return all records if no search query is provided
 
     return JsonResponse({'results': list(results)})
+
+
