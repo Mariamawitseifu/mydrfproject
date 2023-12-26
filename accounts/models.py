@@ -27,7 +27,7 @@ class CustomUser(AbstractUser):
 
 
 class Record(models.Model):
-    order = models.IntegerField(null=True)
+    order = models.IntegerField(null=True,default=1)
     name = models.CharField(max_length=100)
     internal_links = models.CharField(max_length=255, blank=True, null=True)
     external_links = models.CharField(max_length=255,  blank=True, null=True)
