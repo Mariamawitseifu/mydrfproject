@@ -1,24 +1,21 @@
 from django.contrib import admin
-from .models import CustomUser, BlogPost
+from .models import Record
 
-class CustomUserAdmin(admin.ModelAdmin):
-    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff')
-    search_fields = ('username', 'email', 'first_name', 'last_name')
-    list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups')
-    fieldsets = (
-        (None, {'fields': ('username', 'email', 'password')}),
-        ('Personal Info', {'fields': ('first_name', 'last_name')}),
-        ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
-        ('Important dates', {'fields': ('last_login', 'date_joined')}),
-    )
-    readonly_fields = ('last_login', 'date_joined')
+class RecordAdmin(admin.ModelAdmin):
+    def delete_model(self, request, obj):
+        # Implement your custom logic here, for example:
+        pass  # Do nothing to prevent actual deletion
 
-admin.site.register(CustomUser, CustomUserAdmin)
+    def has_delete_permission(self, request, obj=None):
+        return False  # Disable the delete permission for individual records
 
-class PostAdmin(admin.ModelAdmin):
-    list_display = ('title', 'author', 'date_created', 'date_modified')
-    search_fields = ('title', 'author__username')
-    list_filter = ('author', 'date_created', 'date_modified')
-    readonly_fields = ('date_created', 'date_modified')
+    def has_delete_selected_permission(self, request, queryset=None):
+        return False  # Disable the delete permission for bulk deletion
 
-admin.site.register(BlogPost, PostAdmin)
+    def has_change_permission(self, request, obj=None):
+        return False  # Disable the change permission for individual records
+
+    def has_change_selected_permission(self, request, queryset=None):
+        return False  # Disable the change permission for bulk changes
+
+admin.site.register(Record, RecordAdmin)

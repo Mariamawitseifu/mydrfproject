@@ -28,19 +28,6 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
-        'PORT': '',
-    }
-}
-
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -55,11 +42,12 @@ INSTALLED_APPS = [
     'accounts',
     'django_rest_passwordreset',
     'corsheaders',
-    
+    'blog'
 
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -67,7 +55,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'mydrfproject.urls'
@@ -93,24 +80,13 @@ WSGI_APPLICATION = 'mydrfproject.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-# settings.py
 
-# HAYSTACK_CONNECTIONS = {
-#     'default': {
-#         'ENGINE': 'haystack.backends.elasticsearch5_backend.Elasticsearch5SearchEngine',
-#         'URL': 'http://localhost:9200/',
-#         'INDEX_NAME': 'my_website_index',
-#     },
-# }
-
-# HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
-# HAYSTACK_ROUTERS = ['path.to.your.routers.CustomRouter']
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
 
 # Password validation
@@ -164,5 +140,9 @@ REST_FRAMEWORK = {
     # Other settings...
 }
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 CORS_ORIGIN_ALLOW_ALL = True
