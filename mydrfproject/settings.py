@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'accounts',
     'django_rest_passwordreset',
     'corsheaders',
-    'blog'
+    'news',
+    'picture'
 
 ]
 
@@ -70,6 +71,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'news.views.notification_context',
             ],
         },
     },
@@ -119,10 +121,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
-
 STATIC_URL = 'static/'
 
 # Default primary key field type
@@ -142,6 +140,20 @@ REST_FRAMEWORK = {
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# settings.py
+
+# Set the maximum size of uploaded files (in bytes)
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
+
+# Set the allowed file types for image uploads
+FILE_UPLOAD_ALLOWED_TYPES = [
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    # Add more image file types if needed
+]
+
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 

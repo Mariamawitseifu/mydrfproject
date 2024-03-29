@@ -3,31 +3,30 @@
 from rest_framework import serializers
 from .models import CustomUser
 
+class CustomUserSerializer(serializers.ModelSerializer):
+    role = serializers.CharField()
 
-class UserSerializer(serializers.ModelSerializer):
+    def get_role(self, obj):
+        return obj.get_role_display()
+
     class Meta:
         model = CustomUser
-        fields = ['username', 'email', 'password']
+        fields = ['username', 'email', 'password', 'role']
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
-        user = CustomUser(
+        role = validated_data.pop('role', None)
+        user = CustomUser.objects.create_user(
             username=validated_data['username'],
-            email=validated_data['email']
+            email=validated_data['email'],
+            password=validated_data['password']
         )
-        user.set_password(validated_data['password'])
-        user.save()
+
+        if role:
+            user.role = role
+            user.save()
+
         return user
-    
-    # def update(self, instance, validated_data):
-    #     # Update an existing blog post
-    #     instance.image = validated_data.get('image', instance.image)
-    #     instance.title = validated_data.get('title', instance.title)
-    #     instance.description = validated_data.get('description', instance.description)
-    #     instance.save()
-    #     return instance
-    
-# accounts/serializers.py
 
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True)
