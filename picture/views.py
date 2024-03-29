@@ -84,8 +84,8 @@ def update_viewd(request, pk):
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_viewd(request, pk):
-  PictureDroga = get_object_or_404(PictureDroga, pk=pk)
-  PictureDroga.delete()
+  pictureDroga = get_object_or_404(PictureDroga, pk=pk)
+  pictureDroga.delete()
   return Response({'message': 'PictureDroga deleted successfully'}, status=status.HTTP_200_OK)
 
 from django.http import FileResponse
@@ -134,8 +134,8 @@ def update_viewe(request, pk):
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_viewe(request, pk):
-  PictureEma = get_object_or_404(PictureEma, pk=pk)
-  PictureEma.delete()
+  pictureEma = get_object_or_404(PictureEma, pk=pk)
+  pictureEma.delete()
   return Response({'message': 'PictureEma deleted successfully'}, status=status.HTTP_200_OK)
 
 from django.http import FileResponse
@@ -185,8 +185,8 @@ def update_viewt(request, pk):
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_viewt(request, pk):
-  PictureTrust = get_object_or_404(PictureTrust, pk=pk)
-  PictureTrust.delete()
+  pictureTrust = get_object_or_404(PictureTrust, pk=pk)
+  pictureTrust.delete()
   return Response({'message': 'PictureTrust deleted successfully'}, status=status.HTTP_200_OK)
 
 from django.http import FileResponse
@@ -236,9 +236,9 @@ def update_viewc(request, pk):
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_viewc(request, pk):
-  PictureChain = get_object_or_404(PictureChain, pk=pk)
-  PictureChain.delete()
-  return Response({'message': 'PictureChain deleted successfully'}, status=status.HTTP_200_OK)
+ picture_chain = get_object_or_404(PictureChain, pk=pk)
+ picture_chain.delete()
+ return Response({'message': 'PictureChain deleted successfully'}, status=status.HTTP_200_OK)
 
 from django.http import FileResponse
 
@@ -260,7 +260,6 @@ def fetch_all_imagesc(request):
 def delete_all_viewc(request):
  PictureChain.objects.all().delete()
  return Response({'message': 'All PictureChains deleted successfully'}, status=status.HTTP_200_OK)
-
 
 
 @api_view(['POST'])
@@ -287,8 +286,8 @@ def update_viewp(request, pk):
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_viewp(request, pk):
-  PicturePhysio = get_object_or_404(PicturePhysio, pk=pk)
-  PicturePhysio.delete()
+  picturePhysio = get_object_or_404(PictureChain, pk=pk)
+  picturePhysio.delete()
   return Response({'message': 'PicturePhysio deleted successfully'}, status=status.HTTP_200_OK)
 
 from django.http import FileResponse
@@ -302,7 +301,7 @@ def serve_imagep(request, pk):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def fetch_all_imagesp(request):
-  PicturePhysios = PicturePhysio.objects.all()
+  PicturePhysios = PictureChain.objects.all()
   PicturePhysios_list = list(PicturePhysios.values())
   return Response(PicturePhysios_list, status=status.HTTP_200_OK)
 
@@ -311,7 +310,6 @@ def fetch_all_imagesp(request):
 def delete_all_viewp(request):
  PicturePhysio.objects.all().delete()
  return Response({'message': 'All PicturePhysios deleted successfully'}, status=status.HTTP_200_OK)
-
 
 
 @api_view(['POST'])
@@ -338,8 +336,8 @@ def update_views(request, pk):
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_views(request, pk):
-  PictureSom = get_object_or_404(PictureSom, pk=pk)
-  PictureSom.delete()
+  pictureSom = get_object_or_404(PictureSom, pk=pk)
+  pictureSom.delete()
   return Response({'message': 'PictureSom deleted successfully'}, status=status.HTTP_200_OK)
 
 from django.http import FileResponse
@@ -388,8 +386,8 @@ def update_viewr(request, pk):
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_viewr(request, pk):
-  PictureRwanda = get_object_or_404(PictureRwanda, pk=pk)
-  PictureRwanda.delete()
+  pictureRwanda = get_object_or_404(PictureRwanda, pk=pk)
+  pictureRwanda.delete()
   return Response({'message': 'PictureRwanda deleted successfully'}, status=status.HTTP_200_OK)
 
 from django.http import FileResponse

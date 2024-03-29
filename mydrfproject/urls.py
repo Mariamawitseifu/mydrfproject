@@ -19,4 +19,5 @@ urlpatterns = [
     path('api/', include('accounts.urls')),  # Include the app's URLs
     path('api1/', include('news.urls')),
     path('pictures/', include('picture.urls')),
+    path('myapp', include("django_nextjs.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

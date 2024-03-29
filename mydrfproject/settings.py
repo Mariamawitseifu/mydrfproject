@@ -43,8 +43,9 @@ INSTALLED_APPS = [
     'django_rest_passwordreset',
     'corsheaders',
     'news',
-    'picture'
-
+    'picture',
+    'django_nextjs',
+    'myapp',
 ]
 
 MIDDLEWARE = [

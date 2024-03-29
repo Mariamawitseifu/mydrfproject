@@ -19,8 +19,8 @@ from rest_framework.response import Response
 @api_view(['POST'])
 def register_user(request):
     # Check if the user making the request is admin or superadmin
-    if request.user.role not in ['admin', 'superadmin']:
-        return Response({'error': 'Only admin and superadmin can perform this action.'}, status=status.HTTP_403_FORBIDDEN)
+    # if request.user.role not in ['admin', 'superadmin']:
+    #     return Response({'error': 'Only admin and superadmin can perform this action.'}, status=status.HTTP_403_FORBIDDEN)
 
     serializer = CustomUserSerializer(data=request.data)
     if serializer.is_valid():
@@ -107,14 +107,66 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
     send_mail(
         "Password Reset for {title}".format(title="Some website title"),
         email_plaintext_message,
-        "danikasparov@somehost.local",
+        "mariamawits@drogapharma.com",
         [reset_password_token.user.email]
     )
+    
+from rest_framework.permissions import IsAuthenticated, BasePermission
 
-from rest_framework.permissions import IsAdminUser
+class IsAdminOrSuperAdmin(BasePermission):
+    def has_permission(self, request, view):
+        return (
+            request.user.is_authenticated
+            and (request.user.role == 'admin' or request.user.role == 'superadmin')
+        )
+
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import update_last_login
+
+@api_view(['POST'])
+def reset_password_to_default(request, user_id):
+    if request.method == 'POST':
+        try:
+            user = CustomUser.objects.get(id=user_id)
+        except CustomUser.DoesNotExist:
+            return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Reset the password to "12345"
+        user.password = make_password('12345')
+        user.save()
+
+        # Update the last login time to invalidate the current session
+        update_last_login(None, user)
+
+        return Response({'message': 'Password reset to default successfully.'}, status=status.HTTP_200_OK)
+
+
+from django.views.generic.edit import DeleteView
+from django.urls import reverse_lazy
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
+from .models import CustomUser
+
+class UserDeleteView(DeleteView):
+   model = CustomUser
+   success_url = reverse_lazy("users-list")
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_user(request, username):
+  try:
+      user = CustomUser.objects.get(username=username)
+  except CustomUser.DoesNotExist:
+      return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+  user.delete()
+  return Response({'message': 'User deleted successfully.'}, status=status.HTTP_200_OK)
+
 
 @api_view(['GET'])
-@permission_classes([IsAdminUser])
+# @permission_classes([IsAuthenticated,IsAdminOrSuperAdmin])
 def list_users(request):
     users = CustomUser.objects.all()
     serializer = CustomUserSerializer(users, many=True)
@@ -255,3 +307,5 @@ def record_search_api(request):
         results = Record.objects.values()  # Return all records if no search query is provided
 
     return JsonResponse({'results': list(results)})
+
+

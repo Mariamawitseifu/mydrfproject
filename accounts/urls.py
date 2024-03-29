@@ -5,7 +5,7 @@ from .views import register_user, user_login, user_logout
 from .views import change_password
 from django.conf import settings
 from django.conf.urls.static import static 
-from .views import record_detail,list_users,record_list,record_create,delete_record,update_record,record_search_api
+from .views import record_detail,list_users,record_list,record_create,delete_record,update_record,record_search_api,delete_user
 
 urlpatterns = [
     path('register/', register_user, name='register'),
@@ -20,4 +20,7 @@ urlpatterns = [
     path('api/records/delete/<int:pk>/',delete_record, name='delete_record'),
     path('records/<int:pk>/', update_record, name='update_record'),
     path('api/record/search/', record_search_api, name='record_search_api'),
+    path('api/users/<str:username>/',delete_user),
+
+
 ]
